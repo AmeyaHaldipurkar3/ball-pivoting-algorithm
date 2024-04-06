@@ -5,7 +5,8 @@ from typing import List
 
 from ball_pivoting.utility import reconstruct
 from data_structures.grid import *
-from io_handling.mesh_io import loadXYZ, saveTriangles, populate_vertices
+from io_handling.mesh_io import loadXYZ, save_triangles, populate_vertices
+from glm import silence
 
 def main(argv):
     if len(argv) != 3 and len(argv) != 4:
@@ -16,11 +17,12 @@ def main(argv):
     radius: float = float(argv[2])
     output_file: str = argv[3] if len(argv) == 4 else os.path.splittext(input_file)[0] + ".stl"
 
+    silence(2)
     loadedData = loadXYZ(input_file)
     vertices = populate_vertices(loadedData)
     triangles: List[Triangle] = reconstruct(vertices, radius)
     print("Number of triangles", len(triangles))
-    # saveTriangles(output_file, triangles)
+    save_triangles(output_file, triangles)
 
     return 0
 

@@ -1,4 +1,4 @@
-from glm import vec3, normalize
+from glm import vec3, normalize, cross
 from enum import Enum
 
 class Vertex:
@@ -31,4 +31,4 @@ class Face:
     def normal(self)-> vec3:
         edgeDirection1 = self.vertices[0].position - self.vertices[1].position
         edgeDirection2 = self.vertices[0].position - self.vertices[2].position
-        return normalize(edgeDirection1 - edgeDirection2)
+        return normalize(cross(edgeDirection1, edgeDirection2))

@@ -8,12 +8,28 @@ import numpy as np
 from stl import mesh
 from plyfile import PlyData, PlyElement
 
-def saveTriangles(filePath: str, triangles: List[Triangle])-> None:
-    meshData = np.zeros(len(triangles), dtype = mesh.Mesh.dtype)
-    print(len(triangles))
-    meshObj = mesh.Mesh(meshData)
-    meshObj.vectors = np.array(triangles)
-    meshObj.save(filePath)
+import struct
+
+def save_triangles(filename, triangles):
+    with open(filename, 'wb') as f:
+        # Write the header (80 bytes)
+        f.write(struct.pack('<80s', b'STL File Header'))
+
+        # Write the number of triangles (4 bytes)
+        f.write(struct.pack('<I', len(triangles)))
+
+        # Write each triangle
+        for triangle in triangles:
+            # Write the normal vector of the triangle (12 bytes)
+            normal = triangle.normal()
+            f.write(struct.pack('<3f', *normal))
+
+            # Write the vertices of the triangle (36 bytes)
+            for vertex in triangle.vertices:
+                f.write(struct.pack('<3f', *vertex))
+
+            # Write attribute byte count (2 bytes, unused)
+            f.write(struct.pack('<H', 0))
 
 def saveVerticesWithNormals(filePath: str, vertices: List[Vertex])-> None:
     verticesNp = np.zeros(len(vertices), dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('nx', 'f4'), ('ny', 'f4'), ('nz', 'f4')])
@@ -29,8 +45,13 @@ def saveVerticesWithNormals(filePath: str, vertices: List[Vertex])-> None:
 
 def loadXYZ(filePath: str):
     print(os.getcwd())
-    with open(filePath, 'r') as f:
+    # with open(filePath, 'rb', encoding = 'UTF-32-LE') as f:
+    with open(filePath, 'rb') as f:
         lines = f.readlines()
+        # lines = f.read().decode('utf-8')
+        # convert binary to utf-8
+        # print(lines)
+        # exit()
     result = []
 
     for line in lines:

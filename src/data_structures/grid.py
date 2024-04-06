@@ -1,10 +1,12 @@
 from glm import vec3, normalize, ivec3, cross, dot, distance, length2
-from math import ceil, sqrt
+from math import ceil, sqrt, isnan
 from data_structures.mesh_data_structures import Vertex, Edge, Face
 
 from typing import List
 
 def clamp(value, minVal, maxVal):
+    if isnan(value):
+        return value
     return max(minVal, min(value, maxVal))
 
 class Voxel:

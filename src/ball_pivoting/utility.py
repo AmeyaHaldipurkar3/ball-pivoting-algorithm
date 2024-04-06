@@ -22,7 +22,7 @@ def calculateBallCenter(face: Face, radius: float)-> Optional[vec3]:
 def isBallEmpty(ballCenter: vec3, vertices: list[Vertex], radius: float)-> bool:
     epsilon: float = 1e-4
     for vertex in vertices:
-        if distance(vertex.position, ballCenter) < (radius*radius - epsilon):
+        if length2(vertex.position - ballCenter) < (radius*radius - epsilon):
             return False
     
     return True
@@ -87,22 +87,29 @@ def ballPivot(edge: Edge, grid: Grid, radius: float)-> Optional[PivotResult]:
 
         ballCenter: Optional[vec3] = calculateBallCenter(Face(edge.endVertex, edge.startVertex, vertex), radius)
         if not ballCenter:
-            print("Issue with center computation")
+            # print("Issue with center computation")
             continue
         newCenter: vec3 = normalize(ballCenter - edgeMidPoint)
         newCenterFaceDotProduct:vec3 = dot(newCenter, newFaceNormal) #For debugging
 
+        nextNeighborFlag = False
         for e in vertex.edges:
             otherEndVertex: Vertex = e.endVertex if e.startVertex == vertex else e.startVertex
-            if e.edgeStatus == EdgeStatus.INNER and (otherEndVertex == e.startVertex or otherEndVertex == e.endVertex):
-                angle: float = acos(clamp(dot(oldCenter, newCenter), -1.0, 1.0))
-                if (dot(cross(newCenter, oldCenter), e.startVertex.position - e.endVertex.position) < 0):
-                    angle += pi
-                if angle < smallestAngle:
-                    smallestAngle = angle
-                    vertexWithSmallestAngle = vertex
-                    centerOfSmallest = ballCenter
-                    smallestNumber = i
+            if e.edgeStatus == EdgeStatus.INNER and (otherEndVertex == edge.startVertex or otherEndVertex == edge.endVertex):
+                nextNeighborFlag = True
+                break
+        
+        if nextNeighborFlag == True:
+            continue
+        
+        angle: float = acos(clamp(dot(oldCenter, newCenter), -1.0, 1.0))
+        if (dot(cross(newCenter, oldCenter), edge.startVertex.position - edge.endVertex.position) < 0):
+            angle += pi
+        if angle < smallestAngle:
+            smallestAngle = angle
+            vertexWithSmallestAngle = vertex
+            centerOfSmallest = ballCenter
+            smallestNumber = i
 
     if smallestAngle != float("inf"):
         if isBallEmpty(centerOfSmallest, neighbors, radius):
@@ -231,7 +238,7 @@ def reconstruct(vertices: List[Vertex], radius: float)-> List[Triangle]:
         o_k = ballPivot(e_ij, gridObj, radius)
 
         if (o_k and (notUsed(o_k.vertex) or onFront(o_k.vertex))):
-            outputTriangle(Face([e_ij.startVertex, o_k.vertex, e_ij.endVertex]), triangles)
+            outputTriangle(Face(e_ij.startVertex, o_k.vertex, e_ij.endVertex), triangles)
             e_ik, e_kj = join(e_ij, o_k.vertex, o_k.ballCenter, front, edges)
             
             e_ki = findReverseEdgeOnFront(e_ik)
