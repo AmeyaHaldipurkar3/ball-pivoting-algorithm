@@ -5,8 +5,7 @@ from typing import List, Tuple
 from glm import silence
 
 from ball_pivoting.ball_pivoting import reconstruct
-from data_structures.mesh import Vertex
-from data_structures.grid import Triangle
+from data_structures.mesh import Vertex, Triangle
 from io_handling.io import load_xyz, save_triangles, populate_vertices
 
 def main(argv):

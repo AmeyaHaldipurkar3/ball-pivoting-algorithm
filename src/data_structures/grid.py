@@ -79,13 +79,3 @@ class Grid:
                             result.append(vert)
         
         return result
-    
-class Triangle:
-    def __init__(self, vertices: List[vec3] = None):
-        self.vertices: List[vec3] = vertices
-    
-    def normal(self)-> vec3:
-        edge_1_direction: vec3 = self.vertices[0] - self.vertices[1]
-        edge_2_direction: vec3 = self.vertices[0] - self.vertices[2]
-        cross_product: vec3 = cross(edge_1_direction, edge_2_direction)
-        return normalize(cross_product)

@@ -3,6 +3,7 @@ from typing import List, Tuple
 # import numpy as np
 # from plyfile import PlyData, PlyElement
 
+from data_structures.mesh import Triangle
 from data_structures.grid import *
 
 def save_triangles(file_name: str, triangles: List[Triangle]):
